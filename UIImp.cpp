@@ -6,7 +6,118 @@
 
 UI::UI()
 {
+	cout << "Loading... ";
+	ifstream inFile;
+	char input[256];
+	vector<string> finput;
+	bool firstCustBuilt = false;
+	CustomerType *cTemp;
+	Order *oTemp;
+	orderItem *iTemp;
+	int iCount = 0;
+
+
+	inFile.open("CustData.txt", ios::in);
+	while (inFile.getline(input, '|')); //CUSTOMER BUILDS FROM FILE.
+	{
+		if (input == "C")
+		{
+			if (firstCustBuilt)//Customer injection (cTemp is still empty first time around... go boolean!)
+			{
+				totalCustomers.addCustomer(*cTemp);
+			}
+
+			inFile.getline(input, 300, '|'); //Cust ID
+			//validate? *******************************************************
+			finput.push_back(input);
+
+			inFile.getline(input, 300, '|'); //Cust Name
+			finput.push_back(input);
+
+			inFile.getline(input, 300, '\n'); //Cust Email
+			//validate? *******************************************************
+			finput.push_back(input);
+
+			cTemp = new CustomerType(finput[0], finput[1], finput[2]);
+			firstCustBuilt = true; //Perma-true
+			finput.clear();
+		}
+
+		else if (input == "O")
+		{
+			if (iCount > 0)//Order injection (Validating # of items within order)
+			{
+				cTemp->addOrder(*oTemp);
+				iCount = 0;
+			}
+
+			inFile.getline(input, 300, '|'); //Order Num
+			//validate? *******************************************************
+			finput.push_back(input);
+
+			inFile.getline(input, 300, '|');//Order Date 
+			finput.push_back(input);
+
+			inFile.getline(input, 300, '\n');//Delivery Date
+			finput.push_back(input);
+
+			oTemp = new Order(finput[0], finput[1], finput[2]); //Date constructor should adjust automatically.
+			finput.clear();
+		}
+
+		else if (input == "I")
+		{
+			inFile.getline(input, 300, '|');//Item Num
+			finput.push_back(input);
+
+			inFile.getline(input, 300, '|');//Item Desc
+			finput.push_back(input);
+
+			inFile.getline(input, 300, '|');//Stock Ordered (stoi(input))
+			finput.push_back(input);
+
+			inFile.getline(input, 300, '\n');//Price (stod(input))
+			finput.push_back(input);
+
+			iTemp = new orderItem(finput[0], finput[1], stoi(finput[2]), stod(finput[3]));
+			iCount++;
+			finput.clear();
+
+			oTemp->addOrderItem(*iTemp); //Item injection (Should be done automatically)
+		}
+
+	}
+
+	inFile.close();
+	inFile.open("Inventory.txt", ios::in);
+
+	/*while (inFile.getline(input, 300, '|')) //Inventory load, While loop should hit itemID.
+	{
+		finput.push_back(input);
+		
+		inFile.getline(input, 300, '|');//Item Desc
+		finput.push_back(input);
+
+		inFile.getline(input, 300, '|');//Item Price (stof(finput[2])) **float or double expected
+		finput.push_back(input);
+
+		inFile.getline(input, 300, '|');//Item instock (stoi(finput[3]))
+		finput.push_back(input);
+
+		inFile.getline(input, 300, '|');//Item Supplier
+		finput.push_back(input);
+
+		inFile.getline(input, 300, '\n');//Item Reorder Point (stoi(finput[5]))
+		finput.push_back(input);
+//		*********STOCK_INVENTORY.H HAS FILE LOADING ALREADY?
+//		*********STOCK CLASS MISSING PRICE VARIABLE.
+	}*/
+
+	inFile.close();
+	cout << "Complete." << endl;
+	
 	// invlist.load stocks into inventory
+
 }
 
 UI::~UI()
